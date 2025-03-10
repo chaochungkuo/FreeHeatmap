@@ -10,6 +10,7 @@ import seaborn as sns
 import numpy as np
 from io import BytesIO
 from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.ticker as ticker
 
       
 def parse_data(contents):
@@ -66,16 +67,17 @@ def generate_heatmap(df, selected_rows, selected_cols, row_order, col_order, log
         g.ax_heatmap.yaxis.tick_left()
     
     g.ax_heatmap.set_ylabel('')  # Remove y-axis label
-    plt.tight_layout(rect=[0, 0.1, 0.75, 1])
+    plt.tight_layout(rect=[0, 0.1, 0.65, 1])
     if main_title:
-        g.fig.subplots_adjust(top=0.9, right=0.75)
+        g.fig.subplots_adjust(top=0.9, right=0.65)
         g.fig.suptitle(main_title, fontsize=16)
     else:
-        g.fig.subplots_adjust(right=0.75)
+        g.fig.subplots_adjust(right=0.65)
     
     # Now position the color bar in that extra space
-    g.ax_cbar.set_position((0.95, 0.25, 0.03, 0.50))
-    
+    g.ax_cbar.set_position((0.85, 0.25, 0.03, 0.50))
+    g.ax_cbar.locator = ticker.MaxNLocator(nbins=5)
+
     buffer = BytesIO()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
@@ -88,6 +90,6 @@ def generate_heatmap(df, selected_rows, selected_cols, row_order, col_order, log
     # Save as PDF
     pdf_path = './assets/heatmap.pdf'
     with PdfPages(pdf_path) as pdf:
-        pdf.savefig(g.fig)
+        pdf.savefig(g.fig, bbox_inches='tight', pad_inches=0.2)
     plt.close()
     return img_str
