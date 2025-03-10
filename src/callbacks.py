@@ -45,30 +45,33 @@ def register_callbacks(app):
         [Input('filter-column', 'value'), Input('selected-rows', 'value'), Input('selected-columns', 'value'),
          Input('row-order', 'value'), Input('col-order', 'value'),
          Input('log-transform', 'value'), Input('fig-width', 'value'),
-         Input('fig-height', 'value'), Input('cell-width', 'value'),
-         Input('cell-height', 'value'), Input('color-map', 'value'),
+         Input('fig-height', 'value'), Input('color-map', 'value'),
          Input('cluster-rows', 'value'), Input('cluster-columns', 'value'),
          Input('show-labels', 'value'), Input('rotate-column-labels', 'value'),
-         Input('row-label-size', 'value'), Input('column-label-size', 'value')],
+         Input('row-label-size', 'value'), Input('column-label-size', 'value'),
+         Input('main-title', 'value')],
         [State('upload-data', 'contents')],
         prevent_initial_call=True
     )
-    def update_heatmap(filter_column, selected_rows, selected_columns, row_order, col_order, log_transform, fig_width, fig_height, cell_width, cell_height, color_map, cluster_rows, cluster_columns, show_labels, rotate_column_labels, row_label_size, column_label_size, file_content):
+    def update_heatmap(filter_column, selected_rows, selected_columns, row_order, col_order, log_transform, fig_width, fig_height, color_map, cluster_rows, cluster_columns, show_labels, rotate_column_labels, row_label_size, column_label_size, main_title, file_content):
         df = parse_data(file_content)
         if filter_column:
             df = df[df[filter_column].notna()]
         if selected_rows:
             selected_rows = selected_rows.split('\n')
             df = df[df[filter_column].isin(selected_rows)]
+            df.index = df[filter_column]
         if selected_columns:
             selected_columns = selected_columns.split('\n')
             df = df.loc[:, selected_columns]
         
-        if df.empty or not all(np.issubdtype(dtype, np.number) for dtype in df.dtypes):
-            return ''
-        else:
+        showtree_rows = 'showtree-rows' in cluster_rows
+        showtree_columns = 'showtree-columns' in cluster_columns
         
-            heatmap_img = generate_heatmap(df, selected_rows, selected_columns, row_order, col_order, log_transform, fig_width, fig_height, cell_width, cell_height, color_map, cluster_rows, cluster_columns, show_labels, rotate_column_labels, row_label_size, column_label_size)
+        if df.empty or not all(np.issubdtype(dtype, np.number) for dtype in df.dtypes):
+            return b64_image('./assets/heatmap.png')
+        else:
+            heatmap_img = generate_heatmap(df, selected_rows, selected_columns, row_order, col_order, log_transform, fig_width, fig_height, color_map, cluster_rows, cluster_columns, show_labels, rotate_column_labels, row_label_size, column_label_size, main_title, showtree_rows, showtree_columns)
             return heatmap_img
 
     # Callback to process the uploaded file and display its info
