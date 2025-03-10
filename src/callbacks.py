@@ -5,7 +5,7 @@ from utils import parse_data, b64_image, generate_heatmap
 import base64
 import numpy as np
 import io
-from dash import html
+from dash import html, dcc
 
 
 def register_callbacks(app):
@@ -105,3 +105,13 @@ def register_callbacks(app):
             return [f"File: {filename}", html.Br(), f"Rows: {row_count}", html.Br(), f"Columns: {col_count}"]
         except Exception as e:
             return f"Error processing file: {str(e)}"
+
+    @app.callback(
+        Output("download-pdf", "data"),
+        Input("btn_pdf", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def download_pdf(n_clicks):
+        return dcc.send_file(
+            "./assets/heatmap.pdf"
+        )

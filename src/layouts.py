@@ -130,12 +130,11 @@ def create_layout(app_title):
                 html.Img(id='heatmap', src=b64_image('./assets/heatmap.png'), 
                          alt='Heatmap will be displayed here.',
                          style={'width': '100%', 'height': 'auto'}),
-                html.A(
-                    "Download PDF",
-                    href='./assets/heatmap.pdf',
-                    download="heatmap.pdf",
-                    target="_blank"
-                ),
+                html.Div([
+                    html.Button("Download PDF", id="btn_pdf"),
+                    dcc.Download(id="download-pdf")
+                ]),
+
             ], width=9)
         ]),
         
